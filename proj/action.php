@@ -13,7 +13,7 @@ function outError($message){
     print($message);
     exit(1);
 }
-
+    
     if (!empty($orderNum) && !empty($orderCost) && !empty($orderCurr) && !empty($cardNum) && !empty($cardPerson) && !empty($cardDate) && !empty($cardCVV)){
     
     $count = substr_count($cardPerson, ' '); // 2
@@ -40,42 +40,45 @@ function outError($message){
     if ($checkOrderNum != $orderNum || $checkCardNum != $cardNum || $checkCardCVV != $cardCVV || strlen($checkDate0) != 2 || strlen($checkDate1) != 4 || $checkDate0 != $checkDateNext0 || $checkDateNext1 != $checkDate1 || $checkOrderCost != $orderCost || $checkPersonS != $cardPerson){
         
         outError(" Ошибка2. Некорректно введены данные.");
-//        $checkOrderNum != $orderNum ? "истина" : "ложина" 
     }
         echo "Проверка введенных данных завершена. ";
     }else{
         outError("Ошибка. Введены не все необходимые данные!");
     }
+	
+	$mysqli = new mysqli('localhost', 'ck43709_temp', 'Z0Aooywo','ck43709_temp');
+/* проверка соединения */
+if ($mysqli->connect_errno) {
+    printf("Не удалось подключиться: %s\n", $mysqli->connect_error);
+    exit();
+}
 
+    if (!$result = $mysqli->query("SELECT * FROM cardTabl WHERE nam_card = '$cardNum';"))
+		outError('Первый запрос не удался: ' . mysql_error());
+    $row = $result->fetch_assoc();
 
-    $link = mysql_connect('localhost', 'root', 'root')
-    or outError('Не удалось соединиться: ' . mysql_error());
-    mysql_select_db('pay') or outError('Не удалось выбрать базу данных');
-    
-    $querySelect = "SELECT * FROM cardTabl WHERE nam_card = "."'".$cardNum."'".";";
-    $result = mysql_query($querySelect) or outError('Первый запрос не удался: ' . mysql_error().'<br/>');
-    $row = mysql_fetch_array($result);
-    $idCard = $row[0];
-    if (empty($row[0])){
-        $queryCard = "INSERT INTO cardTabl (nam_card,person,date,cvv) VALUES("."'".$cardNum."'".","."'".$cardPerson."'".","."'".$cardDate."'".",".$cardCVV.");";
-        $resultCard = mysql_query($queryCard) or outError('Второй запрос не удался: ' . mysql_error().'<br/>');
+    if (empty($row)){
+//        $hashDB = hash('sha256',$cardCVV);
+
+        if (!$resultCard = $mysqli->query("INSERT INTO cardTabl (nam_card,person,date,cvv) VALUES('$cardNum','$cardPerson','$cardDate','$cardCVV');"))
+			outError('Второй запрос не удался: ' . mysql_error());
         $idCard = $resultCard;
         
     }else{
-//        echo 'Эта карта уже в базе есть. ID = '.$idCard.'<br/>';
+		$idCard = $row['id'];
+        //echo 'Эта карта уже в базе есть. ID = '.$idCard.'<br/>';
     }
     
-    $querySelectOrder = "SELECT * FROM orderTabl WHERE nam_ord = ".$orderNum.";";
-    $result = mysql_query($querySelectOrder) or outError('Третий запрос не удался: ' . mysql_error().'<br/>');
-    $row = mysql_fetch_array($result);
+    if (!$result = $mysqli->query("SELECT * FROM orderTabl WHERE nam_ord = '$orderNum';"))
+		outError('Третий запрос не удался: ' . mysql_error());
+    $row = $result->fetch_assoc();
     
-    if (empty($row[0])){
-        $queryOrder = "INSERT INTO orderTabl (nam_ord,cost,currency,card_id) VALUES("."'".$orderNum."'".",".$orderCost.","."'".$orderCurr."'".",".$idCard.");";
-        $resultOrder = mysql_query($queryOrder) or outError('Четвертый запрос не удался: ' . mysql_error().'<br/>');
-        
+    if (empty($row)){
+        if (!$resultOrder = $mysqli->query("INSERT INTO orderTabl (nam_ord,cost,currency,card_id) VALUES('$orderNum','$orderCost','$orderCurr','$idCard');"))
+			outError('Четвертый запрос не удался: ' . mysql_error());
         echo "Данные успешно внесены в базу данных.";
-        
     }else{
         outError("Ошибка. Указанный номер заказа уже есть в базе, необходимо ввести другой.");
     }
-    mysql_close($link);
+    
+mysqli_close($mysqli);

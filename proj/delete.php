@@ -8,15 +8,25 @@ function outError($message){
     print($message);
     exit();
 }
-$mysqli = new mysqli('localhost', 'root', 'root','pay');
+$mysqli = new mysqli('localhost', 'ck43709_temp', 'Z0Aooywo','ck43709_temp');
 /* проверка соединения */
 if ($mysqli->connect_errno) {
     printf("Не удалось подключиться: %s\n", $mysqli->connect_error);
     exit();
 }
-if ($result = $mysqli->query("DELETE FROM cardTabl 
-WHERE id=".$id.";")) {
-    echo "Успешно удалено";
+
+
+if ($resultSelect = $mysqli->query("SELECT * FROM cardTabl WHERE id = '$id';")) {
+    $rowSel = $resultSelect->fetch_assoc();
+	if (!empty($rowSel)){
+		if ($result = $mysqli->query("DELETE FROM cardTabl 
+		WHERE id='$id';")) {
+			echo "Успешно удалено. ";
+		}else
+			echo "Ошибка удаления. ";
+	}else{
+		echo "Ошибка. Удаляемая карта в базе не найдена. ";
+	}
 }
 mysqli_close($mysqli); 
 

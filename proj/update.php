@@ -39,7 +39,7 @@ if (!empty($cardNum) && !empty($cardPerson) && !empty($cardDate) && !empty($card
     outError("Ошибка. Введены не все необходимые данные!");
 }
 
-$mysqli = new mysqli('localhost', 'root', 'root', 'pay');
+$mysqli = new mysqli('localhost', 'ck43709_temp', 'Z0Aooywo','ck43709_temp');
 /* проверка соединения */
 if ($mysqli->connect_errno) {
     printf("Не удалось подключиться: %s\n", $mysqli->connect_error);
@@ -47,19 +47,19 @@ if ($mysqli->connect_errno) {
 }
 
 
-if ($resultSelect = $mysqli->query("SELECT * FROM cardTabl WHERE nam_card = " . "'" . $cardNum . "'" . ";")) {
-    $rowSel = $resultSelect->fetch_object();
-    if (empty($row) || $rowSel[0] == $id) {
+if ($resultSelect = $mysqli->query("SELECT * FROM cardTabl WHERE nam_card = '$cardNum';")) {
+    $rowSel = $resultSelect->fetch_assoc();
+    if (empty($rowSel) || $rowSel['id'] == $id) {
         if ($result = $mysqli->query("UPDATE cardTabl SET 
-            nam_card = " . "'" . $cardNum . "'" . ",
-            person = " . "'" . $cardPerson . "'" . ",
-            date = " . "'" . $cardDate . "'" . ",
-            cvv = " . "'" . $cardCVV . "'" . "
-            WHERE id=" . $id . ";")) {
+            nam_card = '$cardNum',
+            person = '$cardPerson',
+            date = '$cardDate',
+            cvv = '$cardCVV'
+            WHERE id='$id'")) {
             echo " Успешно обновлено";
         }
     } else {
-        outError("Ошибка. Указанный номер заказа уже есть в базе, необходимо ввести другой.");
+        outError("Ошибка. Указанный номер карты уже есть в базе, необходимо ввести другой или редактировать имеющийся.");
     }
 } else {
     outError('Select запрос не удался: ' . mysql_error() . '<br/>');

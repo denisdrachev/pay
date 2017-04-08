@@ -28,20 +28,20 @@ if (!empty($orderNum) && !empty($orderCost) && !empty($orderCurr)) {
     outError("Ошибка. Введены не все необходимые данные!");
 }
 
-$mysqli = new mysqli('localhost', 'root', 'root', 'pay');
+$mysqli = new mysqli('localhost', 'ck43709_temp', 'Z0Aooywo','ck43709_temp');
 /* проверка соединения */
 if ($mysqli->connect_errno) {
     printf("Не удалось подключиться: %s\n", $mysqli->connect_error);
     exit();
 }
 
-if ($resultSelect = $mysqli->query("SELECT * FROM orderTabl WHERE nam_ord = " . "'" . $orderNum . "'" . ";")) {
-    $row = $resultSelect->fetch_object();
+if ($resultSelect = $mysqli->query("SELECT * FROM orderTabl WHERE nam_ord = '$orderNum';")) {
+    $row = $resultSelect->fetch_assoc();
     if (empty($row)) {
-        if ($resultSelectID = $mysqli->query("SELECT * FROM orderTabl WHERE id = " . $card_id . ";")) {
-            $rowID = $resultSelectID->fetch_object();
+        if ($resultSelectID = $mysqli->query("SELECT * FROM orderTabl WHERE id = '$card_id';")) {
+            $rowID = $resultSelectID->fetch_assoc();
             if (!empty($rowID)) {
-                if ($result = $mysqli->query("INSERT INTO orderTabl (nam_ord,cost,currency,card_id) VALUES(" . "'" . $orderNum . "'" . "," . "'" . $orderCost . "'" . "," . "'" . $orderCurr . "'" . "," . $card_id . ");")) {
+                if ($result = $mysqli->query("INSERT INTO orderTabl (nam_ord,cost,currency,card_id) VALUES('$orderNum','$orderCost','$orderCurr','$card_id');")) {
                     echo "Успешно добавлено";
                 }
             } else {

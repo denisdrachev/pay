@@ -30,7 +30,7 @@ if (!empty($orderNum) && !empty($orderCost) && !empty($orderCurr)) {
 }
 
 
-$mysqli = new mysqli('localhost', 'root', 'root', 'pay');
+$mysqli = new mysqli('localhost', 'ck43709_temp', 'Z0Aooywo','ck43709_temp');
 /* проверка соединения */
 if ($mysqli->connect_errno) {
     printf("Не удалось подключиться: %s\n", $mysqli->connect_error);
@@ -39,20 +39,20 @@ if ($mysqli->connect_errno) {
 
 
 
-$resultSelectCardID = $mysqli->query("SELECT * FROM orderTabl WHERE id = " .$id. ";");
-$rowCardID = $resultSelectCardID->fetch_object();
+$resultSelectCardID = $mysqli->query("SELECT * FROM orderTabl WHERE id = '$id';");
+$rowCardID = $resultSelectCardID->fetch_assoc();
 
-if ($resultSelect = $mysqli->query("SELECT * FROM orderTabl WHERE nam_ord = " . "'" . $orderNum . "'" . ";")) {
-    $row = $resultSelect->fetch_object();
+if ($resultSelect = $mysqli->query("SELECT * FROM orderTabl WHERE nam_ord = '$orderNum';")) {
+    $row = $resultSelect->fetch_assoc();
     if (!empty($rowCardID)){
-        if (!empty($row) || $row[0] == $id) {
+        if (empty($row) || $row['id'] == $id) {
             //        $hashDB = hash('sha256',$cardCVV);
             if ($result = $mysqli->query("UPDATE orderTabl SET 
-                nam_ord = " . "'" . $orderNum . "'" . ",
-                cost = " . "'" . $orderCost . "'" . ",
-                currency = " . "'" . $orderCurr . "'" . ",
-                card_id = " . "'" . $card_id . "'" . "
-                WHERE id=" . $id . ";")) {
+                nam_ord = '$orderNum',
+                cost = '$orderCost',
+                currency = '$orderCurr',
+                card_id = '$card_id'
+                WHERE id='$id';")) {
                 echo "Успешно обновлено";
             } else {
                 echo "Некорректный ID записи";
