@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Оплата</title>
+    <!-- Latest compiled and minified CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+    <link rel="stylesheet" href="assets/style.css">
+
+</head>
+
+<body>
+    <div class="outer">
+        <form id="payForm" action="action.php" novalidate autocomplete="on" method="POST">
+            <div class="order col-md-6">
+                <h2>Данные о покупке</h2>
+                <div class="form-group">
+                    <label for="numeric" class="control-label">Номер заказа</label>
+                    <input id="numeric" maxlength="10" name="orderNum" type="tel" class="input-lg form-control num-ord" data-numeric required>
+                </div>
+                <div class="form-group">
+                    <label for="numeric" class="control-label">Стоимость</label>
+                    <!--                    <input id="numeric" type="tel" class="input-lg form-control" data-numeric required>-->
+                    <input type="text" maxlength="20" name="orderCost" class="input-lg form-control" id="currency" required/>
+                </div>
+                <div class="form-group">
+                    <label for="InputCurr">Валюта</label>
+                    <select name="orderCurr" class="input-lg form-control">
+                        <option>RUB</option>
+                        <option>USD</option>
+                    </select>
+                </div>
+                <h2 class="validation"></h2>
+            </div>
+            <div class="card col-md-6">
+                <h2>Данные карты</h2>
+                <div class="form-group">
+                    <label for="cc-number" class="control-label">Номер карты <small class="text-muted">[<span class="cc-brand"></span>]</small></label>
+                    <input id="cc-number" type="tel" class="input-lg form-control cc-number" autocomplete="cc-number" placeholder="•••• •••• •••• ••••" name="cardNum" required>
+                </div>
+                <div class="form-group">
+                    <label class="control-label">Владелец</label>
+                    <input maxlength="20" id="cardPerson" type="text" class="input-block-level input-lg form-control" pattern="\w+ \w+.*" title="Fill your first and last name" name="cardPerson" required="">
+                </div>
+
+                <div class="form-group">
+                    <label for="cc-exp" class="control-label">Expiration date</label>
+                    <input id="cc-exp" type="tel" class="input-lg form-control cc-exp" autocomplete="cc-exp" placeholder="•• / ••••" name="cardDate" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="cc-cvc" class="control-label">CVV</label>
+                    <input id="cc-cvc" type="tel" class="input-lg form-control cc-cvc" autocomplete="off" placeholder="•••" name="cardCVV" required>
+                </div>
+            </div>
+            <button type="submit" class="btn btn-lg btn-primary">Отправить</button>
+        </form>
+    </div>
+</body>
+
+<script src="http://code.jquery.com/jquery-latest.min.js" type="text/javascript"></script>
+<!-- Latest compiled and minified JavaScript -->
+
+<script src="plagin/payment/lib/jquery.payment.js"></script>
+<script src="plagin/maskMoney/src/jquery.maskMoney.js" type="text/javascript"></script>
+<script src="http://netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/js/bootstrap.min.js"></script>
+<script>
+    $(document).ready(function () {
+        $('.num-ord').keyup(function () {
+            var $this = $(this);
+            if ($this.val().length > 10)
+                $this.val($this.val().substr(0, 10));
+        });
+    });
+    $(function ($) {
+        $('[data-numeric]').payment('restrictNumeric');
+        $('.cc-number').payment('formatCardNumber');
+        $('.cc-exp').payment('formatCardExpiry');
+        $('.cc-cvc').payment('formatCardCVC');
+
+        $.fn.toggleInputError = function (erred) {
+            this.parent('.form-group').toggleClass('has-error', erred);
+            return this;
+        };
+
+        $('form').submit(function (e) {
+            e.preventDefault();
+
+            $('#cardPerson').toggleInputError(!$.payment.validatePerson($('#cardPerson').val()));
+            $('#currency').toggleInputError(!$.payment.validateOrderSum($('#currency').val()));
+            $('.num-ord').toggleInputError(!$.payment.validateOrderNumber($('.num-ord').val()));
+
+
+            var cardType = $.payment.cardType($('.cc-number').val());
+            $('.cc-number').toggleInputError(!$.payment.validateCardNumber($('.cc-number').val()));
+            $('.cc-exp').toggleInputError(!$.payment.validateCardExpiry($('.cc-exp').payment('cardExpiryVal')));
+            $('.cc-cvc').toggleInputError(!$.payment.validateCardCVC($('.cc-cvc').val(), cardType));
+            $('.cc-brand').text(cardType);
+
+
+
+            $('.validation').removeClass('text-danger text-success');
+            len = $('.has-error').length;
+            $('.validation').addClass($('.has-error').length ? 'text-danger' : 'text-success');
+            if (len == 0) {
+                $.ajax({
+                    url: "action.php",
+                    type: "POST",
+                    dataType: "html",
+                    data: $("#payForm").serialize(),
+                    success: function (response) {
+                        alert(response);
+                    },
+                    error: function (xhr, ajaxOptions, thrownError) {
+                        alert(xhr.responseText);
+                    }
+                });
+            }
+        });
+
+    });
+    $(function () {
+        $('#currency').maskMoney();
+    })
+</script>
+
+</html>

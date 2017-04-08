@@ -1,0 +1,18 @@
+.outer {
+    margin: 1% 13%;
+}
+.has-error input {
+	border-width: 2px;
+}
+
+.validation.text-danger:after {
+	content: 'Validation failed';
+}
+
+.validation.text-success:after {
+	content: 'Validation passed';
+}
+
+.outerList .has-error{
+		background-color: #fe0000;
+}

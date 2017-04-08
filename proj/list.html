@@ -1,0 +1,335 @@
+<html>
+
+<head>
+    <title>Просмотр информации</title>
+    <!--    <link href="http://netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/css/bootstrap-combined.min.css" rel="stylesheet">-->
+    <!-- Latest compiled and minified CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+    <link rel="stylesheet" href="plagin/kendo/styles/kendo.common.min.css" />
+    <link rel="stylesheet" href="plagin/kendo/styles/kendo.default.min.css" />
+    <link rel="stylesheet" href="plagin/kendo/styles/kendo.default.mobile.min.css" />
+    <link rel="stylesheet" href="assets/style.css">
+
+
+</head>
+
+<body>
+    <div class="outerList">
+        <h2 class="validation"></h2>
+        <div class="col-md-12">
+            <div id="example">
+                <div id="grid"></div>
+            </div>
+        </div>
+        <div class="col-md-12">
+            <div id="example2">
+                <div id="gridOrder"></div>
+            </div>
+        </div>
+    </div>
+</body>
+
+<script src="http://code.jquery.com/jquery-latest.min.js" type="text/javascript"></script>
+<script src="plagin/kendo/js/jquery.min.js"></script>
+<!-- Latest compiled and minified JavaScript -->
+
+<script src="plagin/payment/lib/jquery.payment.js"></script>
+<script src="plagin/maskMoney/src/jquery.maskMoney.js" type="text/javascript"></script>
+<script src="http://netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/js/bootstrap.min.js"></script>
+
+<script src="plagin/kendo/js/kendo.all.min.js"></script>
+<script>
+    var crudServiceBaseUrl = "http://10.1.1.33:8000",
+        dataSource = new kendo.data.DataSource({
+            transport: {
+                read: {
+                    url: crudServiceBaseUrl + "/select.php",
+                    dataType: "json"
+                },
+                update: {
+                    url: crudServiceBaseUrl + "/update.php",
+                    dataType: "json"
+                },
+                destroy: {
+                    url: crudServiceBaseUrl + "/delete.php",
+                    dataType: "json"
+                },
+                create: {
+                    url: crudServiceBaseUrl + "/insert.php",
+                    dataType: "json"
+                },
+                parameterMap: function (options, operation) {
+                    if (operation !== "read" && options.models) {
+                        return {
+                            models: kendo.stringify(options.models)
+                        };
+                    }
+                }
+            },
+            batch: true,
+            pageSize: 20,
+            schema: {
+                model: {
+                    id: "id",
+                    fields: {
+                        nam_card: {
+                            validation: {
+                                required: true,
+                                productNumvalidation: function (input) {
+
+                                    var value = input.val(),
+                                        name = input[0].name,
+                                        good = false;
+                                    input.attr("data-productNumvalidation-msg", "Некорректные данные");
+                                    //var w = input[0].children("input");
+                                    if (name === "nam_card") {
+                                        if (value === "" || value <= 0 || value.length > 20 || value.length < 12 || !/^\d+$/.test(input.val())) {
+                                            good = false;
+                                            input.addClass("has-error");
+                                        } else {
+                                            good = true;
+                                            input.removeClass("has-error");
+                                        }
+                                    } else
+                                    if (name === "person") {
+                                        var ttt = !/\w+ \w+.*$/.test(input.val());
+                                        if (value === "" || value.length > 20 || value.length < 3 || ttt) {
+                                            good = false;
+                                            input.addClass("has-error");
+                                        } else {
+                                            good = true;
+                                            input.removeClass("has-error");
+                                        }
+                                    } else
+                                    if (name === "date") {
+                                        var ttt = /^\d+\s\/\s\d+$/.test(input.val());
+                                        var arr = value.split(' / ');
+                                        var now = new Date();
+                                        var nowYear = now.getFullYear();
+                                        var nowMonth = now.getMonth() + 1;
+                                        if (value === "" || value.length > 9 || value.length < 9 || !ttt || arr.length != 2 || arr[0].length != 2 || arr[1].length != 4 || arr[0] < 1 || arr[0] > 12 || arr[1] < nowYear || arr[1] > 2100 || nowYear == arr[1] && nowMonth > arr[0]) {
+                                            good = false;
+                                            input.addClass("has-error");
+                                        } else {
+                                            good = true;
+                                            input.removeClass("has-error");
+                                        }
+                                    } else
+                                    if (name === "cvv") {
+                                        var ttt = /^\d{3}$/.test(input.val());
+                                        if (value.length === 3 && ttt) {
+                                            good = true;
+                                            input.removeClass("has-error");
+                                        } else {
+                                            good = false;
+                                            input.addClass("has-error");
+                                        }
+                                    }
+
+                                    //                                    $(".    k-grid-update").kendoButton();
+                                    //                                    $(".k-grid-cancel").click();
+                                    return good;
+                                }
+                            }
+                        },
+                        person: {
+                            validation: {
+                                required: true
+                            }
+                        },
+                        date: {
+                            validation: {
+                                required: true
+                            }
+                        },
+                        cvv: {
+                            validation: {
+                                required: true
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    $("#grid").kendoGrid({
+        dataSource: dataSource,
+        pageable: true,
+        height: 300,
+        toolbar: ["create"],
+        columns: [
+            {
+                field: "nam_card",
+                title: "Номер карты",
+                width: "120px"
+            },
+            {
+                field: "person",
+                title: "Перcона",
+                width: "100px"
+            },
+            {
+                field: "date",
+                title: "Дата [-- / ----]",
+                width: "80px"
+            },
+            {
+                field: "cvv",
+                title: "CVV [***]",
+                width: "50px"
+            },
+            {
+                command: ["edit", "destroy"],
+                title: "&nbsp;",
+                width: "120px"
+            }],
+        editable: "inline",
+    });
+
+
+
+
+
+
+    var crudServiceBaseUrlOrder = "http://10.1.1.33:8000",
+        dataSourceOrder = new kendo.data.DataSource({
+            transport: {
+                read: {
+                    url: crudServiceBaseUrlOrder + "/orderSelect.php",
+                    dataType: "json"
+                },
+                update: {
+                    url: crudServiceBaseUrlOrder + "/orderUpdate.php",
+                    dataType: "json"
+                },
+                destroy: {
+                    url: crudServiceBaseUrlOrder + "/orderDelete.php",
+                    dataType: "json"
+                },
+                create: {
+                    url: crudServiceBaseUrlOrder + "/orderInsert.php",
+                    dataType: "json"
+                },
+                parameterMap: function (options, operation) {
+                    if (operation !== "read" && options.models) {
+                        return {
+                            models: kendo.stringify(options.models)
+                        };
+                    }
+                }
+            },
+            batch: true,
+            pageSize: 20,
+            schema: {
+                model: {
+                    id: "id",
+                    fields: {
+                        nam_ord: {
+                            validation: {
+                                required: true,
+                                productNumvalidation: function (input) {
+
+                                    var value = input.val(),
+                                        name = input[0].name,
+                                        good = false;
+                                    input.attr("data-productNumvalidation-msg", "Некорректные данные");
+                                    //var w = input[0].children("input");
+                                    if (name === "nam_ord") {
+                                        if (value === "" || value <= 0 || value.length > 10 || value.length < 1 || !/^\d+$/.test(input.val())) {
+                                            good = false;
+                                            input.addClass("has-error");
+                                        } else {
+                                            good = true;
+                                            input.removeClass("has-error");
+                                        }
+                                    } else
+                                    if (name === "cost") {
+                                        var ttt = !/^\d+([\.]\d\d?)?$/.test(input.val());
+                                        if (value === "" || value <= 0 || value.length > 20 || value.length < 1 || ttt) {
+                                            good = false;
+                                            input.addClass("has-error");
+                                        } else {
+                                            good = true;
+                                            input.removeClass("has-error");
+                                        }
+                                    } else
+                                    if (name === "card_id") {
+                                        if (value === "" || value <= 0 || value.length > 20 || value.length < 1 || !/^\d+$/.test(input.val())) {
+                                            good = false;
+                                            input.addClass("has-error");
+                                        } else {
+                                            good = true;
+                                            input.removeClass("has-error");
+                                        }
+                                    } else
+                                    if (name === "currency") {
+                                        if (value === "RUB" || value === "USD") {
+                                            good = true;
+                                            input.removeClass("has-error");
+                                        } else {
+                                            good = true;
+                                            //                                                        input.addClass("has-error");
+                                        }
+                                    }
+
+                                    //                                    $(".    k-grid-update").kendoButton();
+                                    //                                    $(".k-grid-cancel").click();
+                                    return good;
+                                }
+
+                            }
+                        },
+                        cost: {
+                            validation: {
+                                required: true
+                            }
+                        },
+                        currency: {
+                            validation: {
+                                required: true
+                            }
+                        },
+                        card_id: {
+                            validation: {
+                                required: true
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    $("#gridOrder").kendoGrid({
+        dataSource: dataSourceOrder,
+        pageable: true,
+        height: 300,
+        toolbar: ["create"],
+        columns: [
+            {
+                field: "nam_ord",
+                title: "Номер заказа",
+                width: "120px"
+            },
+            {
+                field: "cost",
+                title: "Стоимость [*.*]",
+                width: "80px"
+            },
+            {
+                field: "currency",
+                title: "Валюта [RUB,USD]",
+                width: "70px"
+            },
+            {
+                field: "card_id",
+                title: "id карты",
+                width: "80px"
+            },
+            {
+                command: ["edit", "destroy"],
+                title: "&nbsp;",
+                width: "120px"
+            }],
+        editable: "inline",
+    });
+</script>
+
+</html>
