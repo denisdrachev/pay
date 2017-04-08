@@ -92,7 +92,6 @@
                                         name = input[0].name,
                                         good = false;
                                     input.attr("data-productNumvalidation-msg", "Некорректные данные");
-                                    //var w = input[0].children("input");
                                     if (name === "nam_card") {
                                         if (value === "" || value <= 0 || value.length > 20 || value.length < 12 || !/^\d+$/.test(input.val())) {
                                             good = false;
@@ -136,9 +135,6 @@
                                             input.addClass("has-error");
                                         }
                                     }
-
-                                    //                                    $(".    k-grid-update").kendoButton();
-                                    //                                    $(".k-grid-cancel").click();
                                     return good;
                                 }
                             }
@@ -278,12 +274,8 @@
                                             input.removeClass("has-error");
                                         } else {
                                             good = true;
-                                            //                                                        input.addClass("has-error");
                                         }
                                     }
-
-                                    //                                    $(".    k-grid-update").kendoButton();
-                                    //                                    $(".k-grid-cancel").click();
                                     return good;
                                 }
 
