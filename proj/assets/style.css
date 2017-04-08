@@ -16,3 +16,16 @@
 .outerList .has-error{
 		background-color: #fe0000;
 }
+.el{
+	height: 25px;
+	width: 100px;
+	display: inline-block;
+	margin: 5px;
+	background-color: #eee;
+	
+}
+
+.width-600{
+	width: 600px!important;
+}
+
