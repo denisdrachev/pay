@@ -8,12 +8,12 @@ $orderCurr = $data[0]->{'currency'};
 $card_id = $data[0]->{'card_id'};
 
 function outError($message) {
-    header('HTTP/1.1 500 Internal Server Error');
+    //header('HTTP/1.1 500 Internal Server Error', true, 500);
     print($message);
     exit();
 }
 
-if (!empty($orderNum) && !empty($orderCost) && !empty($orderCurr)) {
+if (!empty($id) && !empty($orderNum) && !empty($orderCost) && !empty($orderCurr)) {
 
     if ($orderNum <= 0 || strlen($orderNum) > 10 || $orderCost <= 0 || strlen($orderCost) > 20 || $orderCurr != "RUB" && $orderCurr != "USD") {
         outError(" Ошибка1. Некорректно введены данные.");
@@ -24,9 +24,9 @@ if (!empty($orderNum) && !empty($orderCost) && !empty($orderCurr)) {
     if ($checkOrderNum != $orderNum || $checkOrderCost != $orderCost || $checkCardId != $card_id) {
         outError(" Ошибка2. Некорректно введены данные.");
     }
-    echo "Проверка введенных данных завершена. ";
+    //echo "Проверка введенных данных завершена. ";
 } else {
-    outError("Ошибка. Введены не все необходимые данные!");
+    outError("Ошибка. Недостаточно данных.");
 }
 
 
@@ -53,9 +53,10 @@ if ($resultSelect = $mysqli->query("SELECT * FROM orderTabl WHERE nam_ord = '$or
                 currency = '$orderCurr',
                 card_id = '$card_id'
                 WHERE id='$id';")) {
-                echo "Успешно обновлено";
+                //echo "Успешно обновлено";
+				echo json_encode(new stdClass);
             } else {
-                echo "Некорректный ID записи";
+                outError ("Некорректный ID записи");
             }
         } else {
             outError("Ошибка. Указанный номер заказа уже есть в базе, необходимо ввести другой.");

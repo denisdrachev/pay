@@ -5,7 +5,7 @@ $data = json_decode($_GET['models']);
  $cardDate = $data[0]->{'date'};
  $cardCVV = $data[0]->{'cvv'};
 function outError($message){
-    header('HTTP/1.1 500 Internal Server Error');
+    //header('HTTP/1.1 500 Internal Server Error');
     print($message);
     exit();
 }
@@ -32,7 +32,7 @@ if (!empty($cardNum) && !empty($cardPerson) && !empty($cardDate) && !empty($card
         outError(" Ошибка2. Некорректно введены данные.");
 //        $checkOrderNum != $orderNum ? "истина" : "ложина" 
     }
-        echo "Проверка введенных данных завершена. ";
+        //echo "Проверка введенных данных завершена. ";
 }else{
     outError("Ошибка. Введены не все необходимые данные!");
 }
@@ -52,8 +52,10 @@ if ($resultSelect = $mysqli->query("SELECT * FROM cardTabl WHERE nam_card = '$ca
     $row = $resultSelect->fetch_assoc();
     if (empty($row)){
         if ($result = $mysqli->query("INSERT INTO cardTabl (nam_card,person,date,cvv) VALUES('$cardNum','$cardPerson','$cardDate','$cardCVV');")) {
-            echo "Успешно добавлено";
-        }
+            echo json_encode(new stdClass);
+        }else{
+			outError("Ошибка. Добавление в базу не удалось.");
+		}
     }else{
         outError("Ошибка. Указанный номер заказа уже есть в базе, необходимо ввести другой.");
     }

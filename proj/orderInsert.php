@@ -7,7 +7,7 @@ $orderCurr = $data[0]->{'currency'};
 $card_id = $data[0]->{'card_id'};
 
 function outError($message) {
-    header('HTTP/1.1 500 Internal Server Error');
+    //header('HTTP/1.1 500 Internal Server Error');
     print($message);
     exit();
 }
@@ -23,7 +23,7 @@ if (!empty($orderNum) && !empty($orderCost) && !empty($orderCurr)) {
     if ($checkOrderNum != $orderNum || $checkOrderCost != $orderCost || $checkCardId != $card_id) {
         outError(" Ошибка2. Некорректно введены данные.");
     }
-    echo "Проверка введенных данных завершена. ";
+    //echo "Проверка введенных данных завершена. ";
 } else {
     outError("Ошибка. Введены не все необходимые данные!");
 }
@@ -42,7 +42,8 @@ if ($resultSelect = $mysqli->query("SELECT * FROM orderTabl WHERE nam_ord = '$or
             $rowID = $resultSelectID->fetch_assoc();
             if (!empty($rowID)) {
                 if ($result = $mysqli->query("INSERT INTO orderTabl (nam_ord,cost,currency,card_id) VALUES('$orderNum','$orderCost','$orderCurr','$card_id');")) {
-                    echo "Успешно добавлено";
+                    //echo "Успешно добавлено";
+					echo json_encode(new stdClass);
                 }
             } else {
                 outError("Ошибка. Указанный ID карты отсутсвует в базе.");

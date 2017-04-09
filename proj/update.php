@@ -8,12 +8,12 @@ $cardDate = $data[0]->{'date'};
 $cardCVV = $data[0]->{'cvv'};
 
 function outError($message) {
-    header('HTTP/1.1 500 Internal Server Error');
+    //header('HTTP/1.1 500 Internal Server Error');
     print($message);
     exit();
 }
 
-if (!empty($cardNum) && !empty($cardPerson) && !empty($cardDate) && !empty($cardCVV)) {
+if (!empty($id) && !empty($cardNum) && !empty($cardPerson) && !empty($cardDate) && !empty($cardCVV)) {
     $count = substr_count($cardPerson, ' '); // 2
 
 
@@ -34,9 +34,9 @@ if (!empty($cardNum) && !empty($cardPerson) && !empty($cardDate) && !empty($card
         outError(" Ошибка2. Некорректно введены данные.");
 //        $checkOrderNum != $orderNum ? "истина" : "ложина" 
     }
-    echo "Проверка введенных данных завершена. ";
+    //echo "Проверка введенных данных завершена. ";
 } else {
-    outError("Ошибка. Введены не все необходимые данные!");
+    outError("Ошибка. Недостаточно данных.");
 }
 
 $mysqli = new mysqli('localhost', 'ck43709_temp', 'Z0Aooywo','ck43709_temp');
@@ -45,7 +45,6 @@ if ($mysqli->connect_errno) {
     printf("Не удалось подключиться: %s\n", $mysqli->connect_error);
     exit();
 }
-
 
 if ($resultSelect = $mysqli->query("SELECT * FROM cardTabl WHERE nam_card = '$cardNum';")) {
     $rowSel = $resultSelect->fetch_assoc();
@@ -56,8 +55,10 @@ if ($resultSelect = $mysqli->query("SELECT * FROM cardTabl WHERE nam_card = '$ca
             date = '$cardDate',
             cvv = '$cardCVV'
             WHERE id='$id'")) {
-            echo " Успешно обновлено";
-        }
+				echo json_encode(new stdClass);
+        }else{
+			outError("Ошибка. Неудачное обновление.");
+		}
     } else {
         outError("Ошибка. Указанный номер карты уже есть в базе, необходимо ввести другой или редактировать имеющийся.");
     }
